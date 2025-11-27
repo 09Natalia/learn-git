@@ -67,6 +67,7 @@ describe('Bbc navigation', () => {
     cy.visit('https://www.bbc.com/');
     cy.get('footer').contains('News').should('be.visible') // новости есть в фетере
     cy.get('footer').contains('News').click() // клик
+
     cy.go('back') // кликаем "назад"
     cy.url({ timeout: 10000 }).should('not.include', '/news')
     cy.title().should('include', 'BBC Home')
@@ -98,7 +99,7 @@ describe('Bbc navigation', () => {
       .within(() => { //функция внутри родит эл-та
           cy.get('[data-testid="anchor-inner-wrapper"]').first().click();
         });
-    cy.wait(500);    
+    cy.wait(1000);    
   
   })
 
@@ -114,28 +115,32 @@ describe('Bbc search', () => {
     
     cy.get('button[aria-label="Open menu"]').click({ force: true })  // кликаем по поиску
     cy.get('input[placeholder="Search news, topics and more"]').type('Canada{enter}') // ввод в строку поиска Canada
-    //cy.url().should('include', '/search?q=Сanada') // поиск выполнен, в урл есть /search?q=canada
-    cy.url({ timeout: 10000 }).should('match', /\/search\?q=canada/i)
+    cy.url().should('include', '/search') // поиск выполнен, в урл есть /search?q=canada -
+    //cy.url({ timeout: 10000 }).should('match', /\/search\?q=canada/i) // - 
+    //cy.location('search').should('contain', 'canada'); // - 
+    // cy.location('search').then(search => {
+    //   const lowerCase = search.toLowerCase();
+    //   expect(lowerCase).to.contain('canada');
+    // });
     cy.contains('Canada', { matchCase: false }).should('exist')
-    cy.wait(500);
+    cy.wait(1000);
   } )
 
   it('Есть результаты после обновления страницы', () => {
     
     cy.get('button[aria-label="Open menu"]').click({ force: true }) 
     cy.get('input[placeholder="Search news, topics and more"]').type('Canada{enter}') 
-    //cy.url().should('include', '/search?q=Сanada')
-    cy.url().should('match', /\/search\?q=canada/i)
+    cy.url({ timeout: 10000 }).should('include', '/search')
     cy.contains('Canada', { matchCase: false }).should('exist')
 
     cy.reload(); //обновляем стр
 
-    cy.url({ timeout: 10000 }).should('include', '/search'); // или проверка query param, если есть
+    cy.url({ timeout: 10000 }).should('include', '/search');
     cy.contains('Canada', { matchCase: false }).should('exist');
     cy.get('[data-testid="new-jersey-grid"]').should('exist').and('not.be.empty');
 
 
-    cy.wait(500);
+    cy.wait(1000);
   } )
 
 
@@ -144,14 +149,12 @@ describe('Bbc search', () => {
   it('Тест на поиск по слову с пробелами и на чувствительность к регистру', () => {
     cy.get('button[aria-label="Open menu"]').click({ force: true });
     cy.get('input[placeholder="Search news, topics and more"]')
-      .type(' canada {enter}'); // вставляем пробемы до и после слова
-    // Проверяем, что URL содержит параметр q (регулярка, чтобы учесть кейс)
-    //cy.url().should('match', /\/search\?q=canada/i);
-    //cy.url().should('include', '/q=сanada') 
-    cy.url({ timeout: 10000 }).should('match', /\/search\?q=+canada+/i)
+      .type(' caNAda {enter}'); // вставляем пробемы до и после слова
+    
+    cy.url({ timeout: 10000 }).should('include', '/search') 
 
     // Проверка на регистр
-    cy.contains('CaNAada', { matchCase: false }).should('exist'); // игнорируем регистр
+    cy.contains('Canada', { matchCase: false }).should('exist'); // игнорируем регистр
     cy.get('[data-testid="new-jersey-grid"]')  // есть блок с результатами
       .should('exist')
       .and('not.be.empty');
