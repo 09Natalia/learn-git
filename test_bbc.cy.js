@@ -1,5 +1,3 @@
-//попробую сделать тесты на bbc.com
-
 describe('Bbc navigation', () => {
   beforeEach(() => {
     cy.visit('https://www.bbc.com/');
@@ -8,16 +6,12 @@ describe('Bbc navigation', () => {
 
 
   it('Открытие главной страницы и проверка заголовка', () => {
-
-    // Проверка заголовка главной страницы
     cy.title({ timeout: 10000 }).should('include', 'BBC Home')
-
   })
 
   it('Есть кнопки логин и регистрация', () => {
-    //тесты те же, только другой вариант
-    cy.get('button[aria-label="Register"]', { timeout: 10000 }).should('be.visible') // ок
-    cy.get('button[aria-label="Sign In"]', { timeout: 10000 }).should('be.visible') // ок
+    cy.get('button[aria-label="Register"]', { timeout: 10000 }).should('be.visible')
+    cy.get('button[aria-label="Sign In"]', { timeout: 10000 }).should('be.visible')
     cy.wait(1000);
   })
 
@@ -47,7 +41,7 @@ describe('Bbc navigation', () => {
       .and('be.visible')
     
     cy.get('[data-testid="virginia-title"]')  
-      .parent('a')                            // поднимаемся к родителю <a>
+      .parent('a')
       .should('have.attr', 'href')  
       .and('include', '/news')
 
@@ -55,8 +49,8 @@ describe('Bbc navigation', () => {
   })
 
   it('Переход на News', () => {
-    cy.get('footer').contains('News').should('be.visible') // новости есть в фетере
-    cy.get('footer').contains('News').click() // клик
+    cy.get('footer').contains('News').should('be.visible')
+    cy.get('footer').contains('News').click()
 
     cy.url({ timeout: 10000 }).should('include', '/news')
     cy.title({ timeout: 10000 }).should('include', 'BBC News')
@@ -65,10 +59,10 @@ describe('Bbc navigation', () => {
 
   it('Клик "назад" с вкладки News', () => {
     cy.visit('https://www.bbc.com/');
-    cy.get('footer').contains('News').should('be.visible') // новости есть в фетере
-    cy.get('footer').contains('News').click() // клик
+    cy.get('footer').contains('News').should('be.visible')
+    cy.get('footer').contains('News').click()
 
-    cy.go('back') // кликаем "назад"
+    cy.go('back')
     cy.url({ timeout: 10000 }).should('not.include', '/news')
     cy.title().should('include', 'BBC Home')
     cy.wait(1000);
@@ -88,15 +82,14 @@ describe('Bbc navigation', () => {
   it('Скролл до Features на странице Asia и клик по первой статье', () => {
     cy.viewport(1280, 800);
     cy.visit('https://www.bbc.com/news/world/asia');
-    cy.contains('[data-testid="section-title-wrapper"]','Features') // скролл до блока
+    cy.contains('[data-testid="section-title-wrapper"]','Features')
       .scrollIntoView()
       .should('be.visible');
-    //надо найти контейнер карточек и выбрать 1ю
     cy.get('[data-testid="nevada-section-5"]')
       .find('[data-testid="nevada-grid-5"]')
        .eq(1)
       .scrollIntoView()
-      .within(() => { //функция внутри родит эл-та
+      .within(() => {
           cy.get('[data-testid="anchor-inner-wrapper"]').first().click();
         });
     cy.wait(1000);    
@@ -113,15 +106,9 @@ describe('Bbc search', () => {
 
   it('Поиск через search по слову Canada', () => {
     
-    cy.get('button[aria-label="Open menu"]').click({ force: true })  // кликаем по поиску
-    cy.get('input[placeholder="Search news, topics and more"]').type('Canada{enter}') // ввод в строку поиска Canada
-    cy.url().should('include', '/search') // поиск выполнен, в урл есть /search?q=canada -
-    //cy.url({ timeout: 10000 }).should('match', /\/search\?q=canada/i) // - 
-    //cy.location('search').should('contain', 'canada'); // - 
-    // cy.location('search').then(search => {
-    //   const lowerCase = search.toLowerCase();
-    //   expect(lowerCase).to.contain('canada');
-    // });
+    cy.get('button[aria-label="Open menu"]').click({ force: true })
+    cy.get('input[placeholder="Search news, topics and more"]').type('Canada{enter}')
+    cy.url().should('include', '/search')
     cy.contains('Canada', { matchCase: false }).should('exist')
     cy.wait(1000);
   } )
@@ -133,40 +120,25 @@ describe('Bbc search', () => {
     cy.url({ timeout: 10000 }).should('include', '/search')
     cy.contains('Canada', { matchCase: false }).should('exist')
 
-    cy.reload(); //обновляем стр
+    cy.reload();
 
     cy.url({ timeout: 10000 }).should('include', '/search');
     cy.contains('Canada', { matchCase: false }).should('exist');
     cy.get('[data-testid="new-jersey-grid"]').should('exist').and('not.be.empty');
-
-
     cy.wait(1000);
   } )
-
-
-
 
   it('Тест на поиск по слову с пробелами и на чувствительность к регистру', () => {
     cy.get('button[aria-label="Open menu"]').click({ force: true });
     cy.get('input[placeholder="Search news, topics and more"]')
-      .type(' caNAda {enter}'); // вставляем пробемы до и после слова
+      .type(' caNAda {enter}');
     
     cy.url({ timeout: 10000 }).should('include', '/search') 
-
-    // Проверка на регистр
-    cy.contains('Canada', { matchCase: false }).should('exist'); // игнорируем регистр
-    cy.get('[data-testid="new-jersey-grid"]')  // есть блок с результатами
+    cy.contains('Canada', { matchCase: false }).should('exist');
+    cy.get('[data-testid="new-jersey-grid"]')
       .should('exist')
       .and('not.be.empty');
   });
-
-
-
-
-
-
-
-  
 })  
 
 
