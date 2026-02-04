@@ -22,7 +22,7 @@
 1 **Склонируйте репозиторий**:
 ```bash
 git clone https://github.com/09Natalia/learn-git.git
-
+```
 2 **Перейдите в папку проекта**:
 
 ```bash
